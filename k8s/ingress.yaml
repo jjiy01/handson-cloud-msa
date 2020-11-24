@@ -19,3 +19,7 @@ spec:
         backend:
           serviceName: eshop-backend
           servicePort: 8090
+      - path: /api/carts/?(.*)
+        backend:
+          serviceName: eshop-cartservice
+          servicePort: 8091

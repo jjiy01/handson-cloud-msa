@@ -3,9 +3,9 @@ package com.samsungsds.eshop.cart;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-// @RedisHash("cart")
+@RedisHash("cart")
 public class CartItem {
-    // @Id
+    @Id
     private String id;
     private int quantity;
 
