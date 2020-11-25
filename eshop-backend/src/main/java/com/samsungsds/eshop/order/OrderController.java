@@ -13,6 +13,7 @@ import com.samsungsds.eshop.product.ProductService;
 import com.samsungsds.eshop.shipping.ShippingRequest;
 import com.samsungsds.eshop.shipping.ShippingResult;
 import com.samsungsds.eshop.shipping.ShippingService;
+import com.samsungsds.eshop.nats.NatsPublisher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,17 +32,20 @@ public class OrderController {
     private final CartService cartService;
     private final PaymentService paymentService;
     private final ProductService productService;
+    private final NatsPublisher natsPublisher;
 
     public OrderController(final OrderService orderService, 
     final ShippingService shippingService,
     final  PaymentService paymentService,
     final CartService cartService,
-    final ProductService productService) {
+    final ProductService productService,
+    final NatsPublisher natsPublisher) {
         this.orderService = orderService;
         this.shippingService = shippingService;
         this.paymentService = paymentService;
         this.cartService = cartService;
         this.productService = productService;
+        this.natsPublisher = natsPublisher;
     }
 
     @PostMapping(value = "/orders")
@@ -78,7 +82,10 @@ public class OrderController {
         String orderId = orderService.createOrderId(orderRequest);
 
         // 카트 비우기
-        cartService.emptyCart();
+        // cartService.emptyCart();
+
+        natsPublisher.publish("order.placed", new OrderPlaced(orderId));
+
         return ResponseEntity.ok(new OrderResult(orderId, shippingResult.getShippingTrackingId(),
                 shippingResult.getShippingCost(), totalCost));
     }
